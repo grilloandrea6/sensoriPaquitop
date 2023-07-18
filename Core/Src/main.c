@@ -44,6 +44,9 @@ enum {
   ALARM_LASER,
   DIST_ANS
 };
+
+#define EMA_ALPHA_LASER 0.5f
+#define EMA_ALPHA_SONAR 0.8f
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -79,7 +82,7 @@ uint8_t distRequested = 0;
 long alarmTime = -1;
 
 // global variables
-uint16_t laser, sonar, alarmTimeout = 2000;
+uint16_t laser, oldLaser, sonar, oldSonar, alarmTimeout = 2000;
 uint8_t alarmSend;
 
 /* USER CODE END PV */
@@ -192,8 +195,13 @@ int main(void) {
 
 		HAL_ADC_Start(&hadc1);
 		HAL_ADC_PollForConversion(&hadc1, 1);
+
 		laser = HAL_ADC_GetValue(&hadc1);
 		HAL_ADC_Stop(&hadc1);
+
+		// EMA filtering for laser
+		laser = laser * EMA_ALPHA_LASER + (1.0f-EMA_ALPHA_LASER) * oldLaser;
+		oldLaser = laser;
 
 		// Reading ADC for sonar
 		sConfig.Channel = ADC_CHANNEL_8;
@@ -205,6 +213,10 @@ int main(void) {
 		HAL_ADC_PollForConversion(&hadc1, 1);
 		sonar = HAL_ADC_GetValue(&hadc1);
 		HAL_ADC_Stop(&hadc1);
+
+		// EMA filtering for laser
+		sonar = sonar * EMA_ALPHA_SONAR + (1.0f-EMA_ALPHA_SONAR) * oldSonar;
+		oldSonar = sonar;
 
 		// Alarm check
 		if (alarmTime == -1) {

@@ -1,2 +1,6 @@
 Release/
 Debug/
+Release
+Release/Core/Src/main.cyclo
+*.bin
+Release/sensoriPaquitop.list

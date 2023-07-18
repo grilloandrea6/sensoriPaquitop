@@ -223,7 +223,7 @@ int main(void) {
 			alarmSend = 1;
 			TxData[0] = myCanId;
 
-			if (laser > laserThreshold) { /* Laser alarm */
+			if (laser < laserThreshold) { /* Laser alarm */
 				TxData[1] = ALARM_LASER;
 				TxHeader.DataLength = FDCAN_DLC_BYTES_2;
 			} else if (sonar < redThreshold) { /* RED alarm */
